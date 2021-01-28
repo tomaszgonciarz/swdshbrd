@@ -1,0 +1,327 @@
+{% extends "base_layout.html" %} {% block title %}Welcome{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('serveStaticResource', resource='css/timeline.css') }}">
+    <link rel="stylesheet" href="{{ url_for('serveStaticResource', resource='css/morris.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" integrity="sha256-iq5ygGJ7021Pi7H5S+QAUXCPUfaBzfqeplbg/KlEssg=" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js" integrity="sha256-JuQeAGbk9rG/EoRMixuy5X8syzICcvB0dj3KindZkY0=" crossorigin="anonymous"></script>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Sensor {{sens_id}}</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <a class="btn btn-primary" href="{{ url_for('comment_form', sensor_id=sens_id) }}">Comment</a>
+        <a class="btn btn-primary" href="{{ url_for('ignore_form', sensor_id=sens_id) }}">Ignore incidents</a>
+        {% if ignore_incident %}
+            <a class="btn btn-primary" href="{{ url_for('ignore_incident', sensor_id=sens_id) }}">Ignore current incident</a>
+        {% endif %}
+        <b>Ignored untill {{time_ign}}, by {{user_ign}}</b>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<br>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b>Sensor information</b>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="dataTable_wrapper">
+                    <table class="table table-striped table-bordered table-hover" id="sensor_table">
+                        <thead>
+                            <tr>
+                                <th>Location name</th>
+                                <th>Account name</th>
+                                <th>Phone</th>
+                                <th>Sensor ID</th>
+                                <th>VPN IP</th>
+                                <th>Eth</th>
+                                <th>Time of last heartbeat</th>
+                                <th>Created_at</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <br>
+                <div id="timeline-visualization"></div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-bar-chart-o fa-fw"></i> Heartbeat count
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div id="chart"></div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b>Sensor diagnostics</b>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="dataTable_wrapper">
+                    <table class="table table-striped table-bordered table-hover" id="diagnostics_table">
+                        <thead>
+                            <tr>
+                                <th>Diagnostic ID</th>
+                                <th>Restart at</th>
+                                <th>Free space</th>
+                                <th>Request from IP</th>
+                                <th>Timestamp</th>
+                                <th>Free memory</th>
+                                <th>Total memory</th>
+                                <th>Total space</th>
+                                <th>Free RAM disk</th>
+                                <th>Total RAM disk</th>
+                                <th>Latency</th>
+                                <th>GIT branch</th>
+                                <th>GIT commit</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong onclick='$("#sensor-heartbeat-diagnostics").slideToggle()'>Sensor heartbeat diagnostics (click to roll down)</strong>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body" id='sensor-heartbeat-diagnostics' style="display:none;">
+                <div class="dataTable_wrapper">
+                    <table class="table table-striped table-bordered table-hover" id="heart_diagnostics_table">
+                        <thead>
+                            <tr>
+                                <th>Heartbeat diagnosics ID</th>
+                                <th>Heartbeat count</th>
+                                <th>Diagnostic start</th>
+                                <th>Diagnostic end</th>
+                                <th>Time interval of diagnostic</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-clock-o fa-fw"></i> Sensor's timeline
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <ul class="timeline">
+                    {% for event in resp %}
+                        {{event|safe}}
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+<!-- /.row -->
+{% endblock %}
+{% block js %}
+    {{ super() }}
+    <script src="{{ url_for('serveStaticResource', resource='js/raphael-min.js')}}"></script>
+    <script src="{{ url_for('serveStaticResource', resource='js/morris.min.js')}}"></script>
+    <script src="{{ url_for('serveStaticResource', resource='js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ url_for('serveStaticResource', resource='js/dataTables.bootstrap.min.js')}}"></script>
+    <script>
+    $(document).ready(function() {
+        // DOM element where the Timeline will be attached
+        var container = document.getElementById('timeline-visualization');
+        // Create a DataSet (allows two way data-binding)
+        var items = new vis.DataSet({{ timeline_json|safe }});
+        // Configuration for the Timeline
+        var options = {};
+        // Create a Timeline
+        var timeline = new vis.Timeline(container, items, options);
+
+        $('#sensor_table').DataTable({
+            fixedHeader: true,
+            paging: false,
+            info: false,
+            orgering: false,
+            searching: false,
+            ajax: {
+                url: '/sensor/' + {{sens_id}},
+                dataType: 'json',
+                dataSrc: 'data',
+                contentType: 'application/json'
+            },
+            columns: [
+                {'data' : 'loc_name'},
+                {'data' : 'account_name'},
+                {'data' : 'phone'},
+                {'data' : 'sensor_id'},
+                {'data' : 'vpn_ip'},
+                {'data' : 'eth'},
+                {'data' : 'last_heartbeat'},
+                {'data' : 'created_at'}
+            ],
+            "drawCallback": function(settings) {
+                updateTimestampFields();
+            }
+        });
+        $('#diagnostics_table').DataTable({
+            fixedHeader: true,
+            paging: false,
+            info: false,
+            orgering: false,
+            searching: false,
+            ajax: {
+                url: '/diagnostics/' + {{sens_id}},
+                dataType: 'json',
+                dataSrc: 'data',
+                contentType: 'application/json'
+            },
+            columns: [
+                {'data' : 'diagnostic_id'},
+                {'data' : 'restart_at'},
+                {'data' : 'free_space'},
+                {'data' : 'request_from_ip'},
+                {'data' : 'timestamp'},
+                {'data' : 'free_memory'},
+                {'data' : 'total_memory'},
+                {'data' : 'total_space'},
+                {'data' : 'free_ramdisk'},
+                {'data' : 'total_ramdisk'},
+                {'data' : 'latency'},
+                {'data' : 'git_branch'},
+                {'data' : 'git_commit'}
+            ],
+            "drawCallback": function(settings) {
+                updateTimestampFields();
+            }
+        });
+
+        var table = $('#heart_diagnostics_table').DataTable({
+            deferRender: true,
+            scroller: true,
+            fixedHeader: true,
+            ajax: {
+                url: '/heartdiagnostics/' + {{sens_id}},
+                dataType: 'json',
+                dataSrc: 'data',
+                contentType: 'application/json'
+            },
+            columns: [
+                {'data' : 'heartbeat_diagnostic_id'},
+                {'data' : 'heartbeat_count'},
+                {'data' : 'diagnositc_start'},
+                {'data' : 'diagnositc_end'},
+                {'data' : 'time_interval'}
+            ],
+            "drawCallback": function(settings) {
+                updateTimestampFields();
+            }
+        });
+
+        $(function() {
+            var chart = Morris.Bar({
+                element : 'chart',
+                data : [{
+                    "x" : null,
+                    "y" : null
+                }],
+                xkey : 'x',
+                ykeys : ['y'],
+                labels : ['Heartbeats'],
+                hideHover: 'auto'
+            });
+            $.ajax({
+                url:  '/data_graph/' + {{sens_id}},
+                dataType: 'json',
+                dataSrc: 'data',
+                contentType: 'application/json',
+
+                success: function(html)
+                {
+                    if(html == "error")
+                    {
+                        alert('error');
+                    }
+                    else
+                    {
+                        chart.setData(html);
+                    }
+                }
+            });
+        });
+    });
+
+    function copyToClipboard(txt) {
+        txt = document.createTextNode(txt);
+        var m = document;
+        var w = window;
+        var b = m.body;
+        b.appendChild(txt);
+        if (b.createTextRange) {
+            var d = b.createTextRange();
+            d.moveToElementText(txt);
+            d.select();
+            m.execCommand('copy');
+        } else {
+            var d = m.createRange();
+            var g = w.getSelection;
+            d.selectNodeContents(txt);
+            g().removeAllRanges();
+            g().addRange(d);
+            m.execCommand('copy');
+            g().removeAllRanges();
+        }
+        txt.remove();
+    }
+    </script>
+{% endblock %}

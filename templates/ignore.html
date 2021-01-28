@@ -1,0 +1,60 @@
+{% extends "base_layout.html" %} {% block title %}Welcome{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Ignore</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <b>Ignore</b>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <form action ="{{ url_for('ignore_form', sensor_id=sens_id)}}" method="POST">
+                    <label>Who is ignoring:</label>
+                    <input name="usrname" id="usrname" value={{name}}><br>
+                    <label>Reason for ignore:</label><br>
+                    <input name="reason" type="text" id="reason" style='width:100%'><br>
+                    <label>Ignore unitll:</label><br>
+                    <input name="datetime" type="datetime-local" id="datetime" value="{{date}}"/>
+                    <input class="checkbox" type="checkbox" name="ignor_forever" value=""> Ignore forever<br><br>
+                    <input class="btn btn-primary" id="btn_submit" type="submit">
+                </form>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+{% endblock %}
+{% block js %}
+    {{ super() }}
+    <script src="{{ url_for('serveStaticResource', resource='js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{ url_for('serveStaticResource', resource='js/dataTables.bootstrap.min.js')}}"></script>
+    <script>
+    $(document).ready(function() {
+        $( ".checkbox" ).click(function() {
+            var dateControl = document.querySelector('input[type="datetime-local"]');
+            if (dateControl.value == '3017-06-01T08:30') {
+                dateControl.value = "{{date}}";
+                $( "#datetime" ).show();
+            }
+            else {
+                dateControl.value = '3017-06-01T08:30';
+                $( "#datetime" ).hide();
+            }
+        });
+    });
+
+    </script>
+{% endblock %}
